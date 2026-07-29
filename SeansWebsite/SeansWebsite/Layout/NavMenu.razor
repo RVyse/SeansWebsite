@@ -1,0 +1,28 @@
+@* TODO: Replace "Sean" with the artist's stage name. *@
+<header class="site-header">
+    <div class="nav-bar">
+        <a class="nav-logo" href="">Sean</a>
+
+        <button class="nav-toggle" @onclick="ToggleNav" aria-label="Toggle navigation">&#9776;</button>
+
+        <ul class="nav-links @(isOpen ? "open" : string.Empty)">
+            <li><NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink></li>
+            <li><NavLink class="nav-link" href="about">About</NavLink></li>
+            <li><NavLink class="nav-link" href="music">Music</NavLink></li>
+            <li><NavLink class="nav-link" href="videos">Videos</NavLink></li>
+            <li><NavLink class="nav-link" href="tour">Tour</NavLink></li>
+            <li><NavLink class="nav-link" href="gallery">Gallery</NavLink></li>
+            <li><NavLink class="nav-link" href="news">News</NavLink></li>
+            <li><NavLink class="nav-link" href="contact">Contact</NavLink></li>
+        </ul>
+    </div>
+</header>
+
+@code {
+    private bool isOpen;
+
+    private void ToggleNav()
+    {
+        isOpen = !isOpen;
+    }
+}

@@ -1,0 +1,39 @@
+@page "/news"
+
+<PageTitle>News | Sean</PageTitle>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <h2>News</h2>
+            <p>Updates from the road</p>
+        </div>
+
+        <RevealSection>
+            <div>
+                @foreach (var post in posts)
+                {
+                    <div class="list-item" style="align-items:flex-start;">
+                        <div class="list-item-date">@post.Date</div>
+                        <div class="list-item-info">
+                            <h3>@post.Title</h3>
+                            <p>@post.Excerpt</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </RevealSection>
+    </div>
+</section>
+
+@code {
+    // TODO: Replace with real news / blog posts.
+    private record Post(string Date, string Title, string Excerpt);
+
+    private readonly List<Post> posts = new()
+    {
+        new Post("Apr 2026", "New Single Out Now", "Recorded live at a roadside studio, this one has some grit to it."),
+        new Post("Feb 2026", "Summer Tour Announced", "A run of shows across the South is coming this summer, tickets on sale now."),
+        new Post("Dec 2025", "Year in Review", "Looking back at a year of shows, sessions, and new songs."),
+    };
+}

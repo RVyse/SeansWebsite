@@ -1,0 +1,45 @@
+@page "/music"
+
+<PageTitle>Music | Sean</PageTitle>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <h2>Discography</h2>
+            <p>Blues-soaked, rock-driven</p>
+        </div>
+
+        <RevealSection>
+            <div class="grid grid-3">
+                @foreach (var release in releases)
+                {
+                    <div class="card">
+                        <div class="placeholder-media" style="height:220px;">Cover Art</div>
+                        <div class="card-body">
+                            <h3 class="card-title">@release.Title</h3>
+                            <p class="card-meta">@release.Type &middot; @release.Year</p>
+                            <div class="card-links">
+                                <a class="btn" href="#">Spotify</a>
+                                <a class="btn" href="#">Apple Music</a>
+                                <a class="btn" href="#">YouTube</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </RevealSection>
+    </div>
+</section>
+
+@code {
+    // TODO: Replace with real discography data.
+    private record Release(string Title, string Type, int Year);
+
+    private readonly List<Release> releases = new()
+    {
+        new Release("Midnight Highway", "Single", 2025),
+        new Release("Delta Dust", "Album", 2023),
+        new Release("Twelve Bar Truth", "EP", 2021),
+        new Release("Backroad Blues", "Album", 2019),
+    };
+}

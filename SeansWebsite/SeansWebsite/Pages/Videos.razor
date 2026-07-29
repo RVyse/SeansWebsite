@@ -1,0 +1,45 @@
+@page "/videos"
+
+<PageTitle>Videos | Sean</PageTitle>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <h2>Videos</h2>
+            <p>Live performances and music videos</p>
+        </div>
+
+        <RevealSection>
+            <div class="grid grid-2">
+                @foreach (var video in videos)
+                {
+                    <div class="card">
+                        <div class="placeholder-media" style="aspect-ratio:16/9;">
+                            <!-- TODO: Replace with real embed, e.g.
+                                 <iframe width="100%" height="100%" src="https://www.youtube.com/embed/VIDEO_ID"
+                                         title="YouTube video" frameborder="0" allowfullscreen></iframe> -->
+                            YouTube Embed Placeholder
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">@video.Title</h3>
+                            <p class="card-meta">@video.Description</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </RevealSection>
+    </div>
+</section>
+
+@code {
+    // TODO: Replace with real video data / embed IDs.
+    private record Video(string Title, string Description);
+
+    private readonly List<Video> videos = new()
+    {
+        new Video("Midnight Highway (Official Video)", "Music Video · 2025"),
+        new Video("Live at The Blue Note", "Live Performance · 2024"),
+        new Video("Delta Dust - Studio Session", "Behind the Scenes · 2023"),
+        new Video("Backroad Blues (Acoustic)", "Acoustic Session · 2022"),
+    };
+}

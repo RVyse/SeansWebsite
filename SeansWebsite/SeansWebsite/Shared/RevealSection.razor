@@ -1,0 +1,19 @@
+@* Wraps content so it fades/slides in as the user scrolls to it. *@
+@inject IJSRuntime JS
+
+<div class="reveal @Class">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("siteInterop.registerScrollReveal");
+    }
+}

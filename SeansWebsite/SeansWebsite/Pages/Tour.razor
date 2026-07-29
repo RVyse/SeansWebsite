@@ -1,0 +1,76 @@
+@page "/tour"
+
+<PageTitle>Tour | Sean</PageTitle>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <h2>Upcoming Shows</h2>
+            <p>Come hear it live</p>
+        </div>
+
+        <RevealSection>
+            <div>
+                @foreach (var show in upcomingShows)
+                {
+                    <div class="list-item">
+                        <div class="list-item-date">@show.Date</div>
+                        <div class="list-item-info">
+                            <h3>@show.Venue</h3>
+                            <p>@show.City</p>
+                        </div>
+                        <a class="btn" href="#">Tickets</a>
+                    </div>
+                }
+            </div>
+        </RevealSection>
+    </div>
+</section>
+
+<RevealSection Class="section section-alt">
+    <div class="container">
+        <div class="section-heading">
+            <h2>Past Shows</h2>
+            <p>Where Sean's been</p>
+        </div>
+        <button class="btn" @onclick="TogglePastShows">@(showPast ? "Hide" : "Show") Past Shows</button>
+
+        @if (showPast)
+        {
+            <div style="margin-top:1.5rem;">
+                @foreach (var show in pastShows)
+                {
+                    <div class="list-item">
+                        <div class="list-item-date">@show.Date</div>
+                        <div class="list-item-info">
+                            <h3>@show.Venue</h3>
+                            <p>@show.City</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</RevealSection>
+
+@code {
+    // TODO: Replace with real tour dates.
+    private record Show(string Date, string Venue, string City);
+
+    private bool showPast;
+
+    private void TogglePastShows() => showPast = !showPast;
+
+    private readonly List<Show> upcomingShows = new()
+    {
+        new Show("May 14, 2026", "The Blue Note", "Chicago, IL"),
+        new Show("June 2, 2026", "Crossroads Juke Joint", "Clarksdale, MS"),
+        new Show("June 20, 2026", "Riverside Blues Fest", "Memphis, TN"),
+    };
+
+    private readonly List<Show> pastShows = new()
+    {
+        new Show("Nov 3, 2025", "The Rusty String", "Nashville, TN"),
+        new Show("Sept 18, 2025", "Backwater Tavern", "Austin, TX"),
+    };
+}

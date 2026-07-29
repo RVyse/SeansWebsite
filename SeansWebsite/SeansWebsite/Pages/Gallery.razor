@@ -1,0 +1,43 @@
+@page "/gallery"
+
+<PageTitle>Gallery | Sean</PageTitle>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <h2>Gallery</h2>
+            <p>Moments from the stage and the road</p>
+        </div>
+
+        <RevealSection>
+            <div class="grid grid-3">
+                @for (int i = 1; i <= photoCount; i++)
+                {
+                    var index = i;
+                    <div class="placeholder-media gallery-item" @onclick="() => OpenLightbox(index)">
+                        Photo @index
+                    </div>
+                }
+            </div>
+        </RevealSection>
+    </div>
+</section>
+
+@if (selectedPhoto is not null)
+{
+    <div class="lightbox-overlay" @onclick="CloseLightbox">
+        <div class="placeholder-media lightbox-content">
+            <!-- TODO: Replace with real <img src="..." /> for photo @selectedPhoto -->
+            Photo @selectedPhoto (Full Size Placeholder)
+        </div>
+    </div>
+}
+
+@code {
+    // TODO: Replace with real photo count / image sources.
+    private const int photoCount = 9;
+    private int? selectedPhoto;
+
+    private void OpenLightbox(int index) => selectedPhoto = index;
+    private void CloseLightbox() => selectedPhoto = null;
+}

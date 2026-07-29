@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager Navigation
+
+<NavMenu />
+
+<main class="page-transition" @key="transitionKey">
+    @Body
+</main>
+
+<Footer />
+
+@code {
+    private Guid transitionKey = Guid.NewGuid();
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        transitionKey = Guid.NewGuid();
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}
