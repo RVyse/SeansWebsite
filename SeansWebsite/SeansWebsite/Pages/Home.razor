@@ -1,13 +1,15 @@
 ﻿@page "/"
+@using SeansWebsite.Services
+@using SeansWebsite.Shared.Domain
+@inject HttpClient Http
 
-<PageTitle>Sean | Blues &amp; Rock Guitarist</PageTitle>
+<PageTitle>@main.PageTitle</PageTitle>
 
 <section class="hero">
-    <p class="hero-eyebrow">Live Blues &amp; Classic Rock</p>
+    <p class="hero-eyebrow">@main.Heading</p>
     <h1 class="hero-title">SEAN EMERY</h1>
     <p class="hero-subtitle">
-        <!-- TODO: Replace with real tagline, e.g. "Bringing the soul of B.B. King and the grit of classic rock to stages everywhere." -->
-        Bringing the soul of B.B. King and the grit of classic rock to every stage.
+        @main.Tag
     </p>
     <div class="hero-actions">
         <a class="btn btn-solid" href="tour">See Tour Dates</a>
@@ -101,3 +103,13 @@
         </div>
     </div>
 </RevealSection>
+
+@code {
+    private MainInfo main = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var mainCsv = await Http.GetStringAsync("data/Main.csv");
+        main = MainInfo.FromCsv(CsvHelper.ParseKeyValue(mainCsv));
+    }
+}

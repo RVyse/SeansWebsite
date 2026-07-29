@@ -46,6 +46,56 @@ public static class CsvHelper
         return rows;
     }
 
+    /// <summary>
+    /// Parses a headerless "field,value" CSV where the first column is a field name and the
+    /// second column is its value. Rows with a blank field name are treated as additional
+    /// values for the most recently seen field name (e.g. extra paragraphs of body text).
+    /// </summary>
+    public static Dictionary<string, List<string>> ParseKeyValue(string csv)
+    {
+        var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        if (string.IsNullOrWhiteSpace(csv))
+        {
+            return result;
+        }
+
+        var lines = csv.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+        var currentKey = string.Empty;
+
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
+            var values = ParseLine(line);
+            var key = values.Count > 0 ? values[0].Trim() : string.Empty;
+            var value = values.Count > 1 ? values[1].Trim() : string.Empty;
+
+            if (!string.IsNullOrEmpty(key))
+            {
+                currentKey = key;
+            }
+
+            if (string.IsNullOrEmpty(currentKey) || string.IsNullOrEmpty(value))
+            {
+                continue;
+            }
+
+            if (!result.TryGetValue(currentKey, out var list))
+            {
+                list = new List<string>();
+                result[currentKey] = list;
+            }
+
+            list.Add(value);
+        }
+
+        return result;
+    }
+
     public static string Get(this Dictionary<string, string> row, string key) =>
         row.TryGetValue(key, out var value) ? value : string.Empty;
 

@@ -18,10 +18,17 @@
                 {
                     <div class="card">
                         <div class="placeholder-media" style="aspect-ratio:16/9;">
-                            <!-- TODO: Replace with real embed, e.g.
-                                 <iframe width="100%" height="100%" src="https://www.youtube.com/embed/VIDEO_ID"
-                                         title="YouTube video" frameborder="0" allowfullscreen></iframe> -->
-                            YouTube Embed Placeholder
+                            @if (video.EmbedUrl is not null)
+                            {
+                                <iframe width="100%" height="100%" src="@video.EmbedUrl"
+                                        title="@video.Title" frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowfullscreen></iframe>
+                            }
+                            else
+                            {
+                                <text>YouTube Embed Placeholder</text>
+                            }
                         </div>
                         <div class="card-body">
                             <h3 class="card-title">@video.Title</h3>

@@ -9,57 +9,20 @@
             <p>Get in touch</p>
         </div>
 
-        <div class="grid grid-2">
-            <RevealSection>
-                <EditForm Model="contactForm" OnValidSubmit="HandleSubmit">
-                    <DataAnnotationsValidator />
-                    <input class="form-control-dark" placeholder="Name" @bind="contactForm.Name" />
-                    <input class="form-control-dark" placeholder="Email" @bind="contactForm.Email" />
-                    <textarea class="form-control-dark" rows="5" placeholder="Message" @bind="contactForm.Message"></textarea>
-                    <button class="btn btn-solid" type="submit">Send Message</button>
+        <RevealSection>
+            <div class="contact-info">
+                <h3>Email</h3>
+                <!-- TODO: Add real contact email address here -->
+                <p><a href="mailto:">Email address coming soon</a></p>
 
-                    @if (submitted)
-                    {
-                        <p style="color:var(--color-accent); margin-top:1rem;">
-                            <!-- TODO: Wire this up to a real form backend / email service -->
-                            Thanks for reaching out! (This is a placeholder — connect a real form handler.)
-                        </p>
-                    }
-                </EditForm>
-            </RevealSection>
-
-            <RevealSection>
-                <div>
-                    <h3>Booking Inquiries</h3>
-                    <!-- TODO: Replace with real booking/management contact info -->
-                    <p>For booking, press, or collaboration inquiries:</p>
-                    <p><a href="mailto:booking@example.com">booking@example.com</a></p>
-                    <p>Management: <a href="mailto:management@example.com">management@example.com</a></p>
-
-                    <h3 style="margin-top:2rem;">Newsletter</h3>
-                    <p>Sign up for news on releases and tour dates.</p>
-                    <input class="form-control-dark" placeholder="Your email" />
-                    <button class="btn">Subscribe</button>
-                </div>
-            </RevealSection>
-        </div>
+                <h3 style="margin-top:2rem;">Follow</h3>
+                <!-- TODO: Replace '#' with real Facebook / Instagram URLs -->
+                <p class="contact-follow-links">
+                    <a href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
+                    <a href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
+                </p>
+            </div>
+        </RevealSection>
     </div>
 </section>
 
-@code {
-    private ContactModel contactForm = new();
-    private bool submitted;
-
-    private void HandleSubmit()
-    {
-        // TODO: Send contactForm data to a real backend/email service.
-        submitted = true;
-    }
-
-    private class ContactModel
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Message { get; set; } = string.Empty;
-    }
-}
