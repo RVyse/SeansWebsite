@@ -13,6 +13,7 @@ public class MusicRelease
     public string SpotifyUrl { get; set; } = string.Empty;
     public string AppleMusicUrl { get; set; } = string.Empty;
     public string YoutubeUrl { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 
     /// <summary>
     /// Displays just the year, whether the CSV column contains a plain year (e.g. "2025")
@@ -41,6 +42,33 @@ public class MusicRelease
         }
     }
 
+    /// <summary>
+    /// Parses the CSV "Year" column (plain year, ISO date, or dd/MM/yyyy date) into a
+    /// comparable <see cref="DateTime"/> for sorting purposes.
+    /// </summary>
+    public DateTime Date
+    {
+        get
+        {
+            if (DateTime.TryParseExact(Year, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var isoDate))
+            {
+                return isoDate;
+            }
+
+            if (DateTime.TryParseExact(Year, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var slashDate))
+            {
+                return slashDate;
+            }
+
+            if (DateTime.TryParse(Year, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+            {
+                return parsedDate;
+            }
+
+            return DateTime.MinValue;
+        }
+    }
+
     public bool HasSpotifyUrl => IsValidUrl(SpotifyUrl);
     public bool HasAppleMusicUrl => IsValidUrl(AppleMusicUrl);
     public bool HasYoutubeUrl => IsValidUrl(YoutubeUrl);
@@ -55,6 +83,7 @@ public class MusicRelease
         SpotifyUrl = row.Get("Spotify URL"),
         AppleMusicUrl = row.Get("Apple Music URL"),
         YoutubeUrl = row.Get("Youtube URL"),
+        Description = row.Get("Description"),
     };
 
     private static bool IsValidUrl(string url) =>

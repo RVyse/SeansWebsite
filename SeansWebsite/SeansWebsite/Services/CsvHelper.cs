@@ -17,22 +17,23 @@ public static class CsvHelper
             return rows;
         }
 
-        var lines = csv.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-        if (lines.Length == 0)
+        var recordRows = ParseRecords(csv);
+        if (recordRows.Count == 0)
         {
             return rows;
         }
 
-        var headers = ParseLine(lines[0]);
+        var headers = recordRows[0];
 
-        for (var i = 1; i < lines.Length; i++)
+        for (var i = 1; i < recordRows.Count; i++)
         {
-            if (string.IsNullOrWhiteSpace(lines[i]))
+            var values = recordRows[i];
+
+            if (values.Count == 1 && string.IsNullOrWhiteSpace(values[0]))
             {
                 continue;
             }
 
-            var values = ParseLine(lines[i]);
             var row = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             for (var j = 0; j < headers.Count; j++)
@@ -60,17 +61,15 @@ public static class CsvHelper
             return result;
         }
 
-        var lines = csv.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
         var currentKey = string.Empty;
 
-        foreach (var line in lines)
+        foreach (var values in ParseRecords(csv))
         {
-            if (string.IsNullOrWhiteSpace(line))
+            if (values.Count == 1 && string.IsNullOrWhiteSpace(values[0]))
             {
                 continue;
             }
 
-            var values = ParseLine(line);
             var key = values.Count > 0 ? values[0].Trim() : string.Empty;
             var value = values.Count > 1 ? values[1].Trim() : string.Empty;
 
@@ -102,29 +101,55 @@ public static class CsvHelper
     public static bool GetBool(this Dictionary<string, string> row, string key) =>
         row.Get(key).Trim().Equals("TRUE", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Parses a CSV date column stored in ISO format (yyyy-MM-dd). Returns DateTime.MinValue if unparseable.
-    /// </summary>
-    public static DateTime GetIsoDate(this Dictionary<string, string> row, string key) =>
-        DateTime.TryParseExact(row.Get(key), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
-            ? date
-            : DateTime.MinValue;
-
-    private static List<string> ParseLine(string line)
+    private static readonly string[] SupportedDateFormats =
     {
-        var result = new List<string>();
+        "yyyy-MM-dd",
+        "dd/MM/yyyy",
+        "M/d/yyyy",
+    };
+
+    /// <summary>
+    /// Parses a CSV date column. Tolerates ISO format (yyyy-MM-dd) as well as dd/MM/yyyy,
+    /// since spreadsheet apps (e.g. Excel) often re-save dates in the latter format when the
+    /// CSV is edited and re-exported. Returns DateTime.MinValue if unparseable.
+    /// </summary>
+    public static DateTime GetIsoDate(this Dictionary<string, string> row, string key)
+    {
+        var value = row.Get(key);
+
+        if (DateTime.TryParseExact(value, SupportedDateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var exactDate))
+        {
+            return exactDate;
+        }
+
+        return DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate)
+            ? parsedDate
+            : DateTime.MinValue;
+    }
+
+    /// <summary>
+    /// Tokenizes an entire CSV document into rows of fields, quote-aware. Unlike splitting the
+    /// document into lines first, this correctly handles quoted fields that contain embedded
+    /// newlines (e.g. multi-paragraph text), which would otherwise fracture a single logical
+    /// row into multiple malformed rows.
+    /// </summary>
+    private static List<List<string>> ParseRecords(string csv)
+    {
+        var records = new List<List<string>>();
+        var currentRow = new List<string>();
         var current = new StringBuilder();
         var inQuotes = false;
+        var rowHasContent = false;
 
-        for (var i = 0; i < line.Length; i++)
+        for (var i = 0; i < csv.Length; i++)
         {
-            var c = line[i];
+            var c = csv[i];
 
             if (inQuotes)
             {
                 if (c == '"')
                 {
-                    if (i + 1 < line.Length && line[i + 1] == '"')
+                    if (i + 1 < csv.Length && csv[i + 1] == '"')
                     {
                         current.Append('"');
                         i++;
@@ -138,23 +163,43 @@ public static class CsvHelper
                 {
                     current.Append(c);
                 }
+
+                continue;
             }
-            else if (c == '"')
+
+            switch (c)
             {
-                inQuotes = true;
-            }
-            else if (c == ',')
-            {
-                result.Add(current.ToString());
-                current.Clear();
-            }
-            else
-            {
-                current.Append(c);
+                case '"':
+                    inQuotes = true;
+                    rowHasContent = true;
+                    break;
+                case ',':
+                    currentRow.Add(current.ToString());
+                    current.Clear();
+                    rowHasContent = true;
+                    break;
+                case '\r':
+                    break;
+                case '\n':
+                    currentRow.Add(current.ToString());
+                    current.Clear();
+                    records.Add(currentRow);
+                    currentRow = new List<string>();
+                    rowHasContent = false;
+                    break;
+                default:
+                    current.Append(c);
+                    rowHasContent = rowHasContent || !char.IsWhiteSpace(c);
+                    break;
             }
         }
 
-        result.Add(current.ToString());
-        return result;
+        if (current.Length > 0 || currentRow.Count > 0 || rowHasContent)
+        {
+            currentRow.Add(current.ToString());
+            records.Add(currentRow);
+        }
+
+        return records;
     }
 }

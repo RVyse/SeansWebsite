@@ -23,6 +23,10 @@
                         <div class="card-body">
                             <h3 class="card-title">@release.Title</h3>
                             <p class="card-meta">@release.Type &middot; @release.DisplayYear</p>
+                            @if (!string.IsNullOrWhiteSpace(release.Description))
+                            {
+                                <p>@release.Description</p>
+                            }
                             <div class="card-links">
                                 @if (release.HasSpotifyUrl)
                                 {

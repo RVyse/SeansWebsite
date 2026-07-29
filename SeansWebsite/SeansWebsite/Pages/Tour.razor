@@ -1,7 +1,4 @@
 @page "/tour"
-@using SeansWebsite.Services
-@using SeansWebsite.Shared.Domain
-@inject HttpClient Http
 
 <PageTitle>Tour | Sean</PageTitle>
 
@@ -14,17 +11,7 @@
 
         <RevealSection>
             <div>
-                @foreach (var show in upcomingShows)
-                {
-                    <div class="list-item">
-                        <div class="list-item-date">@show.DisplayDate</div>
-                        <div class="list-item-info">
-                            <h3>@show.Venue</h3>
-                            <p>@show.Location</p>
-                        </div>
-                        <a class="btn" href="@show.Weblink">Link</a>
-                    </div>
-                }
+                <UpcomingShowDates />
             </div>
         </RevealSection>
     </div>
@@ -41,16 +28,7 @@
         @if (showPast)
         {
             <div style="margin-top:1.5rem;">
-                @foreach (var show in pastShows)
-                {
-                    <div class="list-item">
-                        <div class="list-item-date">@show.DisplayDate</div>
-                        <div class="list-item-info">
-                            <h3>@show.Venue</h3>
-                            <p>@show.Location</p>
-                        </div>
-                    </div>
-                }
+                <PastShowDates />
             </div>
         }
     </div>
@@ -60,24 +38,4 @@
     private bool showPast;
 
     private void TogglePastShows() => showPast = !showPast;
-
-    private List<TourShow> upcomingShows = new();
-    private List<TourShow> pastShows = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        var csv = await Http.GetStringAsync("data/Tour.csv");
-        var rows = CsvHelper.Parse(csv);
-        var today = DateTime.Today;
-
-        var shows = rows.Select(TourShow.FromCsvRow).ToList();
-
-        upcomingShows = shows.Where(s => s.Date == DateTime.MinValue || s.Date.Date >= today)
-                              .OrderBy(s => s.Date == DateTime.MinValue ? DateTime.MaxValue : s.Date)
-                              .ToList();
-
-        pastShows = shows.Where(s => s.Date != DateTime.MinValue && s.Date.Date < today)
-                          .OrderByDescending(s => s.Date)
-                          .ToList();
-    }
 }

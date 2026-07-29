@@ -1,7 +1,4 @@
 @page "/news"
-@using SeansWebsite.Services
-@using SeansWebsite.Shared.Domain
-@inject HttpClient Http
 
 <PageTitle>News | Sean</PageTitle>
 
@@ -14,31 +11,8 @@
 
         <RevealSection>
             <div>
-                @foreach (var post in posts)
-                {
-                    <div class="list-item" style="align-items:flex-start;">
-                        <div class="list-item-date">@post.DisplayDate</div>
-                        <div class="list-item-info">
-                            <h3>@post.Title</h3>
-                            <p>@post.Excerpt</p>
-                        </div>
-                    </div>
-                }
+                <NewsDates />
             </div>
         </RevealSection>
     </div>
 </section>
-
-@code {
-    private List<NewsPost> posts = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        var csv = await Http.GetStringAsync("data/News.csv");
-        var rows = CsvHelper.Parse(csv);
-
-        posts = rows.Select(NewsPost.FromCsvRow)
-                     .OrderByDescending(p => p.Date)
-                     .ToList();
-    }
-}

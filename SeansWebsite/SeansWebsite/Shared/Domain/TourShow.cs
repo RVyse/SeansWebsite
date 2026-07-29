@@ -9,6 +9,7 @@ public class TourShow
     public string Venue { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
     public string Weblink { get; set; } = string.Empty;
+    public string Details { get; set; } = string.Empty;
 
     public string DisplayDate => Date == DateTime.MinValue
         ? string.Empty
@@ -20,5 +21,6 @@ public class TourShow
         Venue = row.Get("Venue"),
         Location = row.Get("Location"),
         Weblink = row.Get("Weblink"),
+        Details = row.Get("Details"),
     };
 }

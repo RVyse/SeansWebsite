@@ -1,0 +1,41 @@
+@using SeansWebsite.Services
+@using SeansWebsite.Shared.Domain
+@inject HttpClient Http
+
+@foreach (var show in upcomingShows)
+{
+    <div class="list-item">
+        <div class="list-item-date">@show.DisplayDate</div>
+        <div class="list-item-info">
+            <h3>@show.Venue</h3>
+            <p>@show.Location</p>
+        </div>
+        <a class="btn" href="@show.Weblink">Link</a>
+    </div>
+}
+
+@code {
+    // Leave blank/null to show all upcoming shows, or set a value to only
+    // show shows within the next N days.
+    [Parameter]
+    public int? Days { get; set; }
+
+    private List<TourShow> upcomingShows = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var csv = await Http.GetStringAsync("data/Tour.csv");
+        var rows = CsvHelper.Parse(csv);
+        var today = DateTime.Today;
+
+        var shows = rows.Select(TourShow.FromCsvRow).ToList();
+
+        var all = shows.Where(s => s.Date == DateTime.MinValue || s.Date.Date >= today)
+                        .OrderBy(s => s.Date == DateTime.MinValue ? DateTime.MaxValue : s.Date)
+                        .ToList();
+
+        upcomingShows = Days.HasValue
+            ? all.Where(s => s.Date != DateTime.MinValue && s.Date.Date <= today.AddDays(Days.Value)).ToList()
+            : all;
+    }
+}

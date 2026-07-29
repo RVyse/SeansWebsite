@@ -1,0 +1,43 @@
+@using SeansWebsite.Services
+@using SeansWebsite.Shared.Domain
+@inject HttpClient Http
+
+@foreach (var post in posts)
+{
+    <div class="list-item" style="align-items:flex-start;">
+        <div class="list-item-date">@post.DisplayDate</div>
+        <div class="list-item-info">
+            <h3>@post.Title</h3>
+            <p>@post.Excerpt</p>
+        </div>
+    </div>
+}
+
+@code {
+    // Leave blank/null to show all news posts, or set a value to only show
+    // posts from within the last N days.
+    [Parameter]
+    public int? Days { get; set; }
+
+    private List<NewsPost> posts = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var csv = await Http.GetStringAsync("data/News.csv");
+        var rows = CsvHelper.Parse(csv);
+        var today = DateTime.Today;
+
+        // When posts share the same date, treat rows lower in the CSV as more recent
+        // (e.g. multiple items added the same day) so the newest one still shows first.
+        var allPosts = rows.Select(NewsPost.FromCsvRow)
+                            .Select((post, index) => (post, index))
+                            .OrderByDescending(p => p.post.Date)
+                            .ThenByDescending(p => p.index)
+                            .Select(p => p.post)
+                            .ToList();
+
+        posts = Days.HasValue
+            ? allPosts.Where(p => p.Date != DateTime.MinValue && p.Date.Date >= today.AddDays(-Days.Value)).ToList()
+            : allPosts;
+    }
+}
