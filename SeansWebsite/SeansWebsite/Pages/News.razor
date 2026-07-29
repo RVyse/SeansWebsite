@@ -1,4 +1,7 @@
 @page "/news"
+@using SeansWebsite.Services
+@using SeansWebsite.Shared.Domain
+@inject HttpClient Http
 
 <PageTitle>News | Sean</PageTitle>
 
@@ -14,7 +17,7 @@
                 @foreach (var post in posts)
                 {
                     <div class="list-item" style="align-items:flex-start;">
-                        <div class="list-item-date">@post.Date</div>
+                        <div class="list-item-date">@post.DisplayDate</div>
                         <div class="list-item-info">
                             <h3>@post.Title</h3>
                             <p>@post.Excerpt</p>
@@ -27,13 +30,15 @@
 </section>
 
 @code {
-    // TODO: Replace with real news / blog posts.
-    private record Post(string Date, string Title, string Excerpt);
+    private List<NewsPost> posts = new();
 
-    private readonly List<Post> posts = new()
+    protected override async Task OnInitializedAsync()
     {
-        new Post("Apr 2026", "New Single Out Now", "Recorded live at a roadside studio, this one has some grit to it."),
-        new Post("Feb 2026", "Summer Tour Announced", "A run of shows across the South is coming this summer, tickets on sale now."),
-        new Post("Dec 2025", "Year in Review", "Looking back at a year of shows, sessions, and new songs."),
-    };
+        var csv = await Http.GetStringAsync("data/News.csv");
+        var rows = CsvHelper.Parse(csv);
+
+        posts = rows.Select(NewsPost.FromCsvRow)
+                     .OrderByDescending(p => p.Date)
+                     .ToList();
+    }
 }

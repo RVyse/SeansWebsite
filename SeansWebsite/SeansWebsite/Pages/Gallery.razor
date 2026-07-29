@@ -1,4 +1,7 @@
 @page "/gallery"
+@using SeansWebsite.Services
+@using SeansWebsite.Shared.Domain
+@inject HttpClient Http
 
 <PageTitle>Gallery | Sean</PageTitle>
 
@@ -11,11 +14,11 @@
 
         <RevealSection>
             <div class="grid grid-3">
-                @for (int i = 1; i <= photoCount; i++)
+                @for (int i = 0; i < photos.Count; i++)
                 {
                     var index = i;
                     <div class="placeholder-media gallery-item" @onclick="() => OpenLightbox(index)">
-                        Photo @index
+                        <img src="images/@photos[index].Image" alt="Photo @(index + 1)" style="width:100%;height:100%;object-fit:cover;" />
                     </div>
                 }
             </div>
@@ -27,17 +30,25 @@
 {
     <div class="lightbox-overlay" @onclick="CloseLightbox">
         <div class="placeholder-media lightbox-content">
-            <!-- TODO: Replace with real <img src="..." /> for photo @selectedPhoto -->
-            Photo @selectedPhoto (Full Size Placeholder)
+            <img src="images/@photos[selectedPhoto.Value].Image" alt="Photo @(selectedPhoto.Value + 1)" style="width:100%;height:100%;object-fit:contain;" />
         </div>
     </div>
 }
 
 @code {
-    // TODO: Replace with real photo count / image sources.
-    private const int photoCount = 9;
+    private List<GalleryPhoto> photos = new();
     private int? selectedPhoto;
 
     private void OpenLightbox(int index) => selectedPhoto = index;
     private void CloseLightbox() => selectedPhoto = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var csv = await Http.GetStringAsync("data/Gallery.csv");
+        var rows = CsvHelper.Parse(csv);
+
+        photos = rows.Select(GalleryPhoto.FromCsvRow)
+                      .Where(photo => photo.Display)
+                      .ToList();
+    }
 }

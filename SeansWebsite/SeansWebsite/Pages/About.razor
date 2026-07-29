@@ -1,4 +1,7 @@
 @page "/about"
+@using SeansWebsite.Services
+@using SeansWebsite.Shared.Domain
+@inject HttpClient Http
 
 <PageTitle>About | Sean</PageTitle>
 
@@ -36,9 +39,12 @@
             <p>A few moments from the road</p>
         </div>
         <div class="grid grid-3">
-            <div class="placeholder-media" style="min-height:180px;">Photo 1</div>
-            <div class="placeholder-media" style="min-height:180px;">Photo 2</div>
-            <div class="placeholder-media" style="min-height:180px;">Photo 3</div>
+            @foreach (var photo in snapshotPhotos)
+            {
+                <div class="placeholder-media" style="min-height:180px;">
+                    <img src="images/@photo.Image" alt="@photo.Description" style="width:100%;height:100%;object-fit:cover;" />
+                </div>
+            }
         </div>
         <div style="text-align:center; margin-top:2rem;">
             <a class="btn" href="gallery">View Full Gallery</a>
@@ -52,13 +58,33 @@
             <h2>Press</h2>
             <p>What people are saying</p>
         </div>
-        <blockquote class="blockquote-press">
-            "Sean's slide guitar work channels the old masters while still sounding entirely his own."
-            <br /><strong>— Placeholder Publication</strong>
-        </blockquote>
-        <blockquote class="blockquote-press">
-            "A blistering live show packed with soul and grit."
-            <br /><strong>— Placeholder Music Blog</strong>
-        </blockquote>
+        @foreach (var press in pressQuotes)
+        {
+            <blockquote class="blockquote-press">
+                "@press.Quote"
+                <br /><strong>— @press.Source</strong>
+            </blockquote>
+        }
     </div>
 </RevealSection>
+
+@code {
+    private List<PressQuote> pressQuotes = new();
+    private List<GalleryPhoto> snapshotPhotos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pressCsv = await Http.GetStringAsync("data/Press.csv");
+        var pressRows = CsvHelper.Parse(pressCsv);
+        pressQuotes = pressRows.Select(PressQuote.FromCsvRow)
+                                .OrderByDescending(p => p.Date)
+                                .ToList();
+
+        var galleryCsv = await Http.GetStringAsync("data/Gallery.csv");
+        var galleryRows = CsvHelper.Parse(galleryCsv);
+        snapshotPhotos = galleryRows.Select(GalleryPhoto.FromCsvRow)
+                                     .Where(photo => photo.Display && photo.Snapshot)
+                                     .OrderByDescending(photo => photo.Date)
+                                     .ToList();
+    }
+}

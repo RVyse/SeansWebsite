@@ -379,19 +379,26 @@ a {
 
 /* ---------- Lists (tour/news) ---------- */
 .list-item {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) minmax(280px, auto) minmax(120px, 1fr);
     align-items: center;
-    gap: 1rem;
+    column-gap: 2rem;
     padding: 1.25rem 0;
     border-bottom: 1px solid var(--color-border);
-    flex-wrap: wrap;
 }
 
 .list-item-date {
     color: var(--color-accent);
     font-weight: 600;
-    min-width: 120px;
+    text-align: right;
+}
+
+.list-item-info {
+    text-align: center;
+}
+
+.list-item .btn {
+    justify-self: start;
 }
 
 .list-item-info h3 {

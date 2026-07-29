@@ -1,4 +1,7 @@
 @page "/tour"
+@using SeansWebsite.Services
+@using SeansWebsite.Shared.Domain
+@inject HttpClient Http
 
 <PageTitle>Tour | Sean</PageTitle>
 
@@ -14,12 +17,12 @@
                 @foreach (var show in upcomingShows)
                 {
                     <div class="list-item">
-                        <div class="list-item-date">@show.Date</div>
+                        <div class="list-item-date">@show.DisplayDate</div>
                         <div class="list-item-info">
                             <h3>@show.Venue</h3>
-                            <p>@show.City</p>
+                            <p>@show.Location</p>
                         </div>
-                        <a class="btn" href="#">Tickets</a>
+                        <a class="btn" href="@show.Weblink">Link</a>
                     </div>
                 }
             </div>
@@ -41,10 +44,10 @@
                 @foreach (var show in pastShows)
                 {
                     <div class="list-item">
-                        <div class="list-item-date">@show.Date</div>
+                        <div class="list-item-date">@show.DisplayDate</div>
                         <div class="list-item-info">
                             <h3>@show.Venue</h3>
-                            <p>@show.City</p>
+                            <p>@show.Location</p>
                         </div>
                     </div>
                 }
@@ -54,23 +57,27 @@
 </RevealSection>
 
 @code {
-    // TODO: Replace with real tour dates.
-    private record Show(string Date, string Venue, string City);
-
     private bool showPast;
 
     private void TogglePastShows() => showPast = !showPast;
 
-    private readonly List<Show> upcomingShows = new()
-    {
-        new Show("May 14, 2026", "The Blue Note", "Chicago, IL"),
-        new Show("June 2, 2026", "Crossroads Juke Joint", "Clarksdale, MS"),
-        new Show("June 20, 2026", "Riverside Blues Fest", "Memphis, TN"),
-    };
+    private List<TourShow> upcomingShows = new();
+    private List<TourShow> pastShows = new();
 
-    private readonly List<Show> pastShows = new()
+    protected override async Task OnInitializedAsync()
     {
-        new Show("Nov 3, 2025", "The Rusty String", "Nashville, TN"),
-        new Show("Sept 18, 2025", "Backwater Tavern", "Austin, TX"),
-    };
+        var csv = await Http.GetStringAsync("data/Tour.csv");
+        var rows = CsvHelper.Parse(csv);
+        var today = DateTime.Today;
+
+        var shows = rows.Select(TourShow.FromCsvRow).ToList();
+
+        upcomingShows = shows.Where(s => s.Date == DateTime.MinValue || s.Date.Date >= today)
+                              .OrderBy(s => s.Date == DateTime.MinValue ? DateTime.MaxValue : s.Date)
+                              .ToList();
+
+        pastShows = shows.Where(s => s.Date != DateTime.MinValue && s.Date.Date < today)
+                          .OrderByDescending(s => s.Date)
+                          .ToList();
+    }
 }

@@ -1,4 +1,7 @@
 @page "/music"
+@using SeansWebsite.Services
+@using SeansWebsite.Shared.Domain
+@inject HttpClient Http
 
 <PageTitle>Music | Sean</PageTitle>
 
@@ -14,14 +17,25 @@
                 @foreach (var release in releases)
                 {
                     <div class="card">
-                        <div class="placeholder-media" style="height:220px;">Cover Art</div>
+                        <div class="placeholder-media" style="height:220px;">
+                            <img src="images/@release.Image" alt="@release.Title" style="width:100%;height:100%;object-fit:cover;" />
+                        </div>
                         <div class="card-body">
                             <h3 class="card-title">@release.Title</h3>
-                            <p class="card-meta">@release.Type &middot; @release.Year</p>
+                            <p class="card-meta">@release.Type &middot; @release.DisplayYear</p>
                             <div class="card-links">
-                                <a class="btn" href="#">Spotify</a>
-                                <a class="btn" href="#">Apple Music</a>
-                                <a class="btn" href="#">YouTube</a>
+                                @if (release.HasSpotifyUrl)
+                                {
+                                    <a class="btn" href="@release.SpotifyUrl">Spotify</a>
+                                }
+                                @if (release.HasAppleMusicUrl)
+                                {
+                                    <a class="btn" href="@release.AppleMusicUrl">Apple Music</a>
+                                }
+                                @if (release.HasYoutubeUrl)
+                                {
+                                    <a class="btn" href="@release.YoutubeUrl">YouTube</a>
+                                }
                             </div>
                         </div>
                     </div>
@@ -32,14 +46,15 @@
 </section>
 
 @code {
-    // TODO: Replace with real discography data.
-    private record Release(string Title, string Type, int Year);
+    private List<MusicRelease> releases = new();
 
-    private readonly List<Release> releases = new()
+    protected override async Task OnInitializedAsync()
     {
-        new Release("Midnight Highway", "Single", 2025),
-        new Release("Delta Dust", "Album", 2023),
-        new Release("Twelve Bar Truth", "EP", 2021),
-        new Release("Backroad Blues", "Album", 2019),
-    };
+        var csv = await Http.GetStringAsync("data/Music.csv");
+        var rows = CsvHelper.Parse(csv);
+
+        releases = rows.Select(MusicRelease.FromCsvRow)
+                        .Where(release => release.Display)
+                        .ToList();
+    }
 }

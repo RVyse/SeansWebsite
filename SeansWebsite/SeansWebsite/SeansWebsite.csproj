@@ -8,12 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.10" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="NewFolder\" />
+    <Folder Include="wwwroot\data\New folder\" />
     <Folder Include="wwwroot\images\" />
+    <Folder Include="wwwroot\data\" />
   </ItemGroup>
 
 </Project>
