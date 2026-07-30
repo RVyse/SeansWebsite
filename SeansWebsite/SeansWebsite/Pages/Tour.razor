@@ -23,7 +23,9 @@
             <h2>Past Shows</h2>
             <p>Where Sean's been</p>
         </div>
-        <button class="btn" @onclick="TogglePastShows">@(showPast ? "Hide" : "Show") Past Shows</button>
+        <div style="text-align:center; margin-top:1rem;">
+            <button class="btn toggle-past" @onclick="TogglePastShows">@(showPast ? "Hide" : "Show") Past Shows</button>
+        </div>
 
         @if (showPast)
         {

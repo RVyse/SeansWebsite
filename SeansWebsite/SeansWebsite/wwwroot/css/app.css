@@ -443,7 +443,7 @@ a {
 }
 
 .list-item .btn {
-    justify-self: start;
+    justify-self: center;
 }
 
 .list-item-info h3 {
@@ -455,6 +455,31 @@ a {
     margin: 0;
     color: var(--color-text-muted);
     font-size: 0.9rem;
+}
+
+/* Make tour/news lists responsive on small screens to prevent horizontal overflow */
+@media (max-width: 800px) {
+    .list-item {
+        display: grid;
+        grid-template-columns: 1fr;
+        column-gap: 0;
+        row-gap: 0.5rem;
+        align-items: start;
+        padding: 0.75rem 0;
+    }
+
+    .list-item-date {
+        text-align: center;
+        margin-bottom: 0.25rem;
+    }
+
+    .list-item-info {
+        text-align: center;
+    }
+
+    .list-item .btn {
+        justify-self: center;
+    }
 }
 
 /* ---------- Gallery / Lightbox ---------- */

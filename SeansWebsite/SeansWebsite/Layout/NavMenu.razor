@@ -1,12 +1,13 @@
 @* TODO: Replace "Sean" with the artist's stage name. *@
+@implements IDisposable
 <header class="site-header">
     <div class="nav-bar">
-        <a class="nav-logo" href="">Sean Emery</a>
+        <a class="nav-logo" href="/">Sean Emery</a>
 
         <button class="nav-toggle" @onclick="ToggleNav" aria-label="Toggle navigation">&#9776;</button>
 
-        <ul class="nav-links @(isOpen ? "open" : string.Empty)">
-            <li><NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink></li>
+        <ul class="nav-links @(isOpen ? "open" : string.Empty)" @onclick="CloseNav">
+            <li><NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Home</NavLink></li>
             <li><NavLink class="nav-link" href="about">About</NavLink></li>
             <li><NavLink class="nav-link" href="music">Music</NavLink></li>
             <li><NavLink class="nav-link" href="videos">Videos</NavLink></li>
@@ -20,9 +21,33 @@
 
 @code {
     private bool isOpen;
+    [Inject]
+    private NavigationManager Navigation { get; set; } = default!;
+
+    // Subscribe to navigation events so the mobile menu closes when the route changes
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        isOpen = false;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= HandleLocationChanged;
+    }
 
     private void ToggleNav()
     {
         isOpen = !isOpen;
+    }
+
+    private void CloseNav()
+    {
+        isOpen = false;
     }
 }
