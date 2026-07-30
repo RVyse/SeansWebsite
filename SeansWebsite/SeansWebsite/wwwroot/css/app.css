@@ -257,6 +257,11 @@ a {
             height: 24px;
         }
 
+        .home-socials a svg {
+            width: 36px;
+            height: 36px;
+        }
+
         .footer-socials a:hover {
             color: var(--color-accent);
             transform: translateY(-3px);
